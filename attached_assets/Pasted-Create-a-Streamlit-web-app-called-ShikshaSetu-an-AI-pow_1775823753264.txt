@@ -1,0 +1,103 @@
+Create a Streamlit web app called ShikshaSetu — an AI-powered multilingual learning platform. Single file: app.py. Install: streamlit, pandas, plotly, requests, deep-translator.
+
+---
+
+Use the deep-translator library (GoogleTranslator) to translate lesson content. Map language names to ISO codes: Hindi→hi, Kannada→kn, Tamil→ta, Bengali→bn, English→en. For Hinglish, generate content in English then append key terms in Hindi using translate().
+
+---
+
+def generate_lesson(subject, topic, grade, language, mode):
+  # Build structured lesson dict with keys:
+  # explanation, bullets, example, simplified, detailed
+  # Translate all values using GoogleTranslator(source='en', target=lang_code).translate(text)
+  return lesson_dict
+
+def generate_quiz(topic, language, difficulty="medium"):
+  # Return list of 10 dicts: {question, options[4], answer, explanation}
+  # Translate questions + options to target language
+
+def mentor_response(question, context_topic, language):
+  # Pattern-match question intent, return helpful mock response
+  # Translate response to target language
+
+def generate_report(score, total, topic, wrong_questions):
+  # Return dict: score, percent, strengths, weaknesses, recommendation
+
+---
+
+Pages: Home | Dashboard | Learn | Practice | Progress | Settings
+
+Home: Hero section, feature cards (AI Lesson, Multilingual, Mentor, Analytics)
+
+Learn Page:
+- Subject dropdown (Math, Science, History, Physics, Chemistry, Biology, English)
+- Topic text input
+- Grade selector (Class 6–10, Class 11–12, Engineering, Competitive Exams)
+- Language selector (English, Hindi, Kannada, Tamil, Bengali, Hinglish)
+- Mode selector (Explain Like I'm 5, Student Mode, Exam Mode)
+- [Generate Lesson] button
+- Show lesson in 5 expandable cards after generation
+- [Take Quiz] button appears after lesson
+
+Practice Page:
+- Show 10 MCQ cards with radio buttons
+- Instant feedback on submit (green/red per question)
+- Show explanation for each answer
+- Score summary at end
+
+Progress Page:
+- Plotly bar chart: quiz scores over sessions (mock data)
+- Plotly heatmap: topic mastery (mock 6x6 matrix)
+- Insight text cards
+
+Dashboard:
+- Metric cards (Topics Studied, Avg Score, Streak)
+- Plotly line chart for weekly progress
+- Recent activity list
+
+Settings:
+- Font size slider
+- Theme toggle (Light/Dark placeholder)
+- Language preference
+
+---
+
+Add a persistent chat UI at the bottom of the Learn and Practice pages using st.chat_input and st.chat_message. System label: "Shiksha Mentor". Pre-fill quick prompts as buttons: "Explain again", "Give example", "Translate to Hindi", "Exam tips", "Simplify". Use mentor_response() for replies.
+
+---
+
+Build a CURRICULUM_DB dict in Python with 5+ subjects, each containing topic summaries for 3+ topics. When generating a lesson, first retrieve the closest matching entry from CURRICULUM_DB using simple keyword matching (str.lower() contains check), then use that as the base content before expanding/translating. This simulates RAG without a vector DB.
+
+---
+
+from deep_translator import GoogleTranslator
+
+def translate_text(text, target_lang_code):
+    if target_lang_code == "en":
+        return text
+    try:
+        return GoogleTranslator(source='auto', target=target_lang_code).translate(text)
+    except:
+        return text  # fallback to English
+
+LANG_CODES = {
+    "Hindi": "hi", "Kannada": "kn",
+    "Tamil": "ta", "Bengali": "bn",
+    "English": "en", "Hinglish": "hi"
+}
+
+---
+
+Use st.markdown with custom CSS injected via st.markdown("<style>...</style>", unsafe_allow_html=True).
+Apply: dark sidebar, card-style containers with border-radius:12px, padding:20px, background:#1e1e2e for dark panels. Use st.columns for card grids. Add st.progress for quiz score bars. Use plotly dark template for all charts.
+
+---
+
+Use st.session_state to persist:
+- current_lesson (dict)
+- quiz_questions (list)
+- quiz_answers (dict)
+- chat_history (list)
+- selected_language (str)
+- quiz_submitted (bool)
+- performance_history (list of score dicts)

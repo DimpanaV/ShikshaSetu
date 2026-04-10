@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "ShikshaSetu"
+version = "1.0.0"
+id = "artifacts/shikshasetu"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24591
+
+[services.development]
+run = "pnpm --filter @workspace/shikshasetu run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/shikshasetu", "run", "build" ]
+publicDir = "artifacts/shikshasetu/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24591"
+BASE_PATH = "/"

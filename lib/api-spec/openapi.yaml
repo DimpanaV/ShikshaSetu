@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ShikshaSetu API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: lessons
+    description: Lesson generation
+  - name: quiz
+    description: Quiz operations
+  - name: mentor
+    description: Mentor chat
+  - name: progress
+    description: Progress tracking
+  - name: dashboard
+    description: Dashboard data
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +33,139 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /lessons/generate:
+    post:
+      operationId: generateLesson
+      tags: [lessons]
+      summary: Generate a lesson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateLessonRequest"
+      responses:
+        "200":
+          description: Generated lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+
+  /quiz/generate:
+    post:
+      operationId: generateQuiz
+      tags: [quiz]
+      summary: Generate a quiz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateQuizRequest"
+      responses:
+        "200":
+          description: Generated quiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizResponse"
+
+  /mentor/ask:
+    post:
+      operationId: mentorAsk
+      tags: [mentor]
+      summary: Ask the mentor a question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MentorRequest"
+      responses:
+        "200":
+          description: Mentor response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorResponse"
+
+  /progress:
+    get:
+      operationId: getProgress
+      tags: [progress]
+      summary: Get all progress records
+      responses:
+        "200":
+          description: Progress list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgressRecord"
+    post:
+      operationId: saveProgress
+      tags: [progress]
+      summary: Save a quiz result
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveProgressRequest"
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressRecord"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary metrics
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/weekly:
+    get:
+      operationId: getWeeklyProgress
+      tags: [dashboard]
+      summary: Get weekly progress data
+      responses:
+        "200":
+          description: Weekly data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeeklyPoint"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity
+      responses:
+        "200":
+          description: Activity list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +173,178 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    GenerateLessonRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+        topic:
+          type: string
+        grade:
+          type: string
+        language:
+          type: string
+        mode:
+          type: string
+      required: [subject, topic, grade, language, mode]
+
+    Lesson:
+      type: object
+      properties:
+        explanation:
+          type: string
+        bullets:
+          type: array
+          items:
+            type: string
+        example:
+          type: string
+        simplified:
+          type: string
+        detailed:
+          type: string
+        subject:
+          type: string
+        topic:
+          type: string
+        grade:
+          type: string
+        language:
+          type: string
+        mode:
+          type: string
+      required: [explanation, bullets, example, simplified, detailed, subject, topic, grade, language, mode]
+
+    GenerateQuizRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        language:
+          type: string
+        difficulty:
+          type: string
+      required: [topic, language]
+
+    QuizQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        answer:
+          type: string
+        explanation:
+          type: string
+      required: [question, options, answer, explanation]
+
+    QuizResponse:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestion"
+        topic:
+          type: string
+        language:
+          type: string
+      required: [questions, topic, language]
+
+    MentorRequest:
+      type: object
+      properties:
+        question:
+          type: string
+        contextTopic:
+          type: string
+        language:
+          type: string
+      required: [question, contextTopic, language]
+
+    MentorResponse:
+      type: object
+      properties:
+        response:
+          type: string
+      required: [response]
+
+    ProgressRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        topic:
+          type: string
+        subject:
+          type: string
+        score:
+          type: integer
+        total:
+          type: integer
+        percent:
+          type: number
+        language:
+          type: string
+        createdAt:
+          type: string
+      required: [id, topic, subject, score, total, percent, language, createdAt]
+
+    SaveProgressRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        subject:
+          type: string
+        score:
+          type: integer
+        total:
+          type: integer
+        language:
+          type: string
+      required: [topic, subject, score, total, language]
+
+    DashboardSummary:
+      type: object
+      properties:
+        topicsStudied:
+          type: integer
+        avgScore:
+          type: number
+        streak:
+          type: integer
+        totalQuizzes:
+          type: integer
+      required: [topicsStudied, avgScore, streak, totalQuizzes]
+
+    WeeklyPoint:
+      type: object
+      properties:
+        day:
+          type: string
+        score:
+          type: number
+        quizzes:
+          type: integer
+      required: [day, score, quizzes]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        topic:
+          type: string
+        score:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, description, topic, score, createdAt]
